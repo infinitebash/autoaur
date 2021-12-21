@@ -2,8 +2,8 @@
 
 import os
 import feedparser
-import sys
 import re
+import argparse
 
 def get_titles():
   aurFeed = feedparser.parse("https://aur.archlinux.org/rss/")
@@ -40,13 +40,36 @@ def update_repo(outdir):
   os.chdir(outdir)
   os.system("repo-add -R -s -v repo.db.tar.zst *.pkg.tar.zst")
 
-def main(argv):
-  try:
-    packages = os.getenv("PACKAGES").split(" ")
-    packages_path = os.getenv("PACKAGES_PATH")
-    outdir = os.getenv("PACKAGES_OUTPUT")
-  except:
-    sys.exit("Error: Missing environment variables")
+def main():
+  parser = argparse.ArgumentParser(
+    prog="autoaur",
+    description="A tool for automaing aur builds")  
+  parser.add_argument(
+    "--packages", 
+    type=str,
+    nargs=1,
+    required=True,
+    help="Path to a file containing a new-line seperated list of packages")
+  parser.add_argument(
+    "--packages-path",
+    type=str,
+    nargs=1,
+    required=True,
+    help="Path to store package builds in"
+  )
+  parser.add_argument(
+    "--output", "-o",
+    type=str,
+    nargs=1,
+    required=True,
+    help="Path to output packages/repo database to (i.e. a folder served via a web server)"
+  )
+
+  args = parser.parse_args()
+  outdir = args.output[0]
+  packages_path = args.packages_path[0]
+  with open(args.packages[0]) as f:
+    packages = f.read().splitlines()
 
   for package in packages:
     package_path = packages_path + "/" + package
@@ -67,4 +90,4 @@ def main(argv):
   update_repo(outdir)
 
 if __name__ == "__main__":
-  main(sys.argv[1:])
+  main()
