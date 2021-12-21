@@ -32,13 +32,13 @@ def download_package(packages_path, package):
 def build_package(package_path, outdir):
   print("Building")
   os.chdir(package_path)
-  os.system("makepkg -s --noconfirm")
+  os.system("makepkg --sign -s --noconfirm")
   os.system("mv *.pkg* " + outdir)
 
 def update_repo(outdir):
   print("Updating repo")
   os.chdir(outdir)
-  os.system("repo-add -R repo.db.tar.zst *.pkg*")
+  os.system("repo-add -R -s -v repo.db.tar.zst *.pkg.tar.zst")
 
 def main(argv):
   try:
