@@ -35,6 +35,11 @@ def build_package(package_path, outdir):
   os.system("makepkg -s --noconfirm")
   os.system("mv *.pkg* " + outdir)
 
+def update_repo(outdir):
+  print("Updating repo")
+  os.chdir(outdir)
+  os.system("repo-add -R repo.db.tar.zst *.pkg*")
+
 def main(argv):
   try:
     packages = os.getenv("PACKAGES").split(" ")
@@ -58,6 +63,8 @@ def main(argv):
     if not re.search(package + "(.*)", " ".join(os.listdir(outdir))):
       print("Package " + package + " found in list but has not been built!")
       build_package(package_path, outdir)
+    
+  update_repo(outdir)
 
 if __name__ == "__main__":
   main(sys.argv[1:])
