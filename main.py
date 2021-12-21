@@ -1,6 +1,9 @@
+#!/usr/bin/env python3
+
 import os
 import feedparser
 import sys
+import re
 
 def get_titles():
   aurFeed = feedparser.parse("https://aur.archlinux.org/rss/")
@@ -17,6 +20,7 @@ def is_update(package):
   return False
 
 def update_package(package_path, outdir):
+  print("Updating")
   os.chdir(package_path)
   os.system("git pull")
   build_package(package_path, outdir)
@@ -26,26 +30,34 @@ def download_package(packages_path, package):
   os.system("git clone https://aur.archlinux.org/" + package + ".git")
 
 def build_package(package_path, outdir):
+  print("Building")
   os.chdir(package_path)
   os.system("makepkg -s --noconfirm")
-  os.system("cp *.pkg* " + outdir)
+  os.system("mv *.pkg* " + outdir)
 
 def main(argv):
-  packages = os.getenv("PACKAGES").split(" ")
-  packages_path = os.getenv("PACKAGES_PATH")
-  outdir = os.getenv("PACKAGES_OUTPUT")
-
-  print(packages)
+  try:
+    packages = os.getenv("PACKAGES").split(" ")
+    packages_path = os.getenv("PACKAGES_PATH")
+    outdir = os.getenv("PACKAGES_OUTPUT")
+  except:
+    sys.exit("Error: Missing environment variables")
 
   for package in packages:
     package_path = packages_path + "/" + package
 
     if package not in os.listdir(packages_path):
+      print("Package " + package + " not found! Attempting to download it.")
       download_package(packages_path, package)
       build_package(package_path, outdir)
 
     if is_update(package):
+      print("Package " + package + "has an update available!")
       update_package(package_path, outdir)
+
+    if not re.search(package + "(.*)", " ".join(os.listdir(outdir))):
+      print("Package " + package + " found in list but has not been built!")
+      build_package(package_path, outdir)
 
 if __name__ == "__main__":
   main(sys.argv[1:])
