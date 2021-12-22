@@ -4,17 +4,23 @@ A tool for automating builds of AUR packages and putting them on a repo.
 
 ## Basic Usage
 
-1. Create folders for the repo and PKGBUILDs:
+Create folders for the repo and PKGBUILDs:
 
-   `mkdir repo packages`
+```sh
+mkdir repo packages
+```
 
-2. Add your favorite AUR packages to a file:
+Add your favorite AUR packages to a file:
 
-   `echo awesome-git >> packages.list && echo yay >> packages.list`
+```sh
+echo awesome-git >> packages.list && echo yay >> packages.list
+```
 
-3. Run autoaur:
+Run autoaur:
 
-   `./autoaur.py --packages packages.list --packages-path $(pwd)/packages --output $(pwd)/repo`
+```sh
+./autoaur.py --packages packages.list --packages-path $(pwd)/packages --output $(pwd)/repo
+```
 
 ## Automating Updates
 
