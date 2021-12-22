@@ -5,18 +5,16 @@ import feedparser
 import re
 import argparse
 
-def get_titles():
+def is_update(package):
   aurFeed = feedparser.parse("https://aur.archlinux.org/rss/")
 
   titles = []
   for entry in aurFeed['entries']:
     titles.append(entry['title'])
-  
-  return titles
 
-def is_update(package):
-  if package in get_titles():
+  if package in titles:
     return True
+    
   return False
 
 def update_package(package_path, outdir):
